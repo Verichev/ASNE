@@ -77,6 +77,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import ru.reksoft.platform.log.Logger;
+
 /**
  * Class for VK social network integration
  *
@@ -85,6 +87,7 @@ import java.util.ArrayList;
 public class VkSocialNetwork extends SocialNetwork {
     /*** Social network ID in asne modules, should be unique*/
     public static final int ID = 5;
+    public String TAG = getClass().getSimpleName();
     private static final String SAVE_STATE_KEY_OAUTH_TOKEN = "VkSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
     private static final String SAVE_STATE_KEY_OAUTH_SECRET = "VkSocialNetwork.SAVE_STATE_KEY_OAUTH_SECRET";
     private static final String SAVE_STATE_KEY_USER_ID = "VkSocialNetwork.SAVE_STATE_KEY_USER_ID";
@@ -145,6 +148,7 @@ public class VkSocialNetwork extends SocialNetwork {
     VKAccessTokenTracker vkAccessTokenTracker = new VKAccessTokenTracker() {
         @Override
         public void onVKAccessTokenChanged(VKAccessToken oldToken, VKAccessToken newToken) {
+            Logger.i(TAG, "onVKAccessTokenChanged: "+newToken);
             if (newToken != null) {
                 mAccessToken = newToken;
                 mSharedPreferences.edit()
@@ -157,6 +161,7 @@ public class VkSocialNetwork extends SocialNetwork {
                     mLocalListeners.remove(REQUEST_LOGIN);
                 }
                 mUserId = newToken.userId;
+            } else {
             }
         }
     };
@@ -849,10 +854,11 @@ public class VkSocialNetwork extends SocialNetwork {
             @Override
             public void onResult(VKAccessToken res) {
                 // Пользователь успешно авторизовался
-                Log.e("VKSocial", "Login");
+                Log.e(TAG, "Login "+res);
             }
             @Override
             public void onError(VKError error) {
+                Logger.i(TAG, "onError: "+error.errorMessage);
                 mLocalListeners.get(REQUEST_LOGIN).onError(getID(), REQUEST_LOGIN, error.toString(), null);
             }
         })) {
